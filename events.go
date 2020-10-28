@@ -39,7 +39,7 @@ func MemberAddGuildEvent(session *discordgo.Session, event *discordgo.GuildMembe
 	fields := []*discordgo.MessageEmbedField{
 		{
 			Name:   "Czas dołączenia",
-			Value:  timestamp.String(),
+			Value:  timestamp.Format(time.ANSIC),
 			Inline: true,
 		},
 		{
@@ -59,6 +59,7 @@ func MemberAddGuildEvent(session *discordgo.Session, event *discordgo.GuildMembe
 		Image:       image,
 		Color:       501767,
 		Fields:      fields,
+		Timestamp: time.Now().Format(time.RFC3339),
 	})
 	if err != nil {
 		_ = fmt.Errorf("fail to send welcome embed on welcome channel %s", err)
@@ -78,7 +79,7 @@ func MemberRemoveGuildEvent(session *discordgo.Session, event *discordgo.GuildMe
 	fields := []*discordgo.MessageEmbedField{
 		{
 			Name:   "Czas odłączenia",
-			Value:  time.Now().String(),
+			Value:  time.Now().Format(time.ANSIC),
 			Inline: true,
 		},
 		{
@@ -98,6 +99,7 @@ func MemberRemoveGuildEvent(session *discordgo.Session, event *discordgo.GuildMe
 		Image:       image,
 		Color:       14558244,
 		Fields:      fields,
+		Timestamp: time.Now().Format(time.RFC3339),
 	})
 	if err != nil {
 		_ = fmt.Errorf("fail to send welcome embed on welcome channel %s", err)
@@ -116,6 +118,17 @@ func MessageXD(session *discordgo.Session, event *discordgo.MessageCreate) {
 	_, err := session.ChannelMessageSend(event.ChannelID, "iks de")
 	if err != nil {
 		_ = fmt.Errorf("fail to send iks de message %s", err)
+	}
+}
+
+func PleasePornGif(session *discordgo.Session, event *discordgo.MessageCreate) {
+	if !strings.Contains(strings.ToLower(event.Content), "pls porngif")  {
+		return
+	}
+
+	_, err := session.ChannelMessageSend(event.ChannelID, "( ͡° ͜ʖ ͡°)")
+	if err != nil {
+		_ = fmt.Errorf("fail to send porngif message %s", err)
 	}
 }
 

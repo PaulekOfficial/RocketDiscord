@@ -21,6 +21,7 @@ func main()  {
 	discordSession.AddHandler(MemberAddGuildEvent)
 	discordSession.AddHandler(MemberRemoveGuildEvent)
 	discordSession.AddHandler(MessageXD)
+	discordSession.AddHandler(PleasePornGif)
 
 	discordSession.Identify.Intents = discordgo.MakeIntent(discordgo.IntentsAll)
 

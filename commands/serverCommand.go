@@ -13,10 +13,11 @@ func init() {
 }
 
 func onServerCommand(session *discordgo.Session, event *discordgo.MessageCreate, guild *discordgo.Guild, args []string) error {
-	timestamp, err := guild.JoinedAt.Parse()
-	if err != nil {
-		return err
-	}
+	//timestamp, err := guild.JoinedAt.Parse()
+	//if err != nil {
+	//	panic(err)
+	//	return err
+	//}
 	emojiNames := make([]string, len(guild.Emojis))
 	for i := 0; i < len(guild.Emojis); i++ {
 		emojiNames[i] = ":" + guild.Emojis[i].Name + ":"
@@ -35,7 +36,7 @@ func onServerCommand(session *discordgo.Session, event *discordgo.MessageCreate,
 		{
 			Name:   "Region",
 			Value:  guild.Region,
-			Inline: false,
+			Inline: true,
 		},
 		{
 			Name:   "Ilosc dostepnych kanalow",
@@ -54,11 +55,11 @@ func onServerCommand(session *discordgo.Session, event *discordgo.MessageCreate,
 		},
 		{
 			Name:   "Data powstania",
-			Value:  timestamp.Format("Mon Jan _2 15:04:05 2006"),
+			Value:  "null",
 			Inline: true,
 		},
 	}
-	_, err = session.ChannelMessageSendEmbed(event.ChannelID, &discordgo.MessageEmbed{
+	_, err := session.ChannelMessageSendEmbed(event.ChannelID, &discordgo.MessageEmbed{
 		Title:       "Informacje dotyczące serwera",
 		Description: "Oto najważniejsze informacje o tym serwerze!",
 		Color:       30654,
