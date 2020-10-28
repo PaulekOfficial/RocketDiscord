@@ -1,8 +1,10 @@
 package main
 
 import (
+	"RocketDiscord/commands"
 	"fmt"
 	"github.com/bwmarrin/discordgo"
+	"math/rand"
 	"strconv"
 	"strings"
 	"time"
@@ -107,8 +109,20 @@ func MessageXD(session *discordgo.Session, event *discordgo.MessageCreate) {
 		return
 	}
 
+	if rand.Intn(100) < 50 {
+		return
+	}
+
 	_, err := session.ChannelMessageSend(event.ChannelID, "iks de")
 	if err != nil {
 		_ = fmt.Errorf("fail to send iks de message %s", err)
 	}
+}
+
+func CommandMessageCreate(session *discordgo.Session, event *discordgo.MessageCreate) {
+	guild, err := session.Guild(event.GuildID)
+	if err != nil {
+		_ = fmt.Errorf("fail to get guild via id %s", err)
+	}
+	commands.ParseMessage(session, event, guild, event.Content)
 }

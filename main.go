@@ -17,6 +17,7 @@ func main()  {
 	}
 
 	discordSession.AddHandler(ReadyEvent)
+	discordSession.AddHandler(CommandMessageCreate)
 	discordSession.AddHandler(MemberAddGuildEvent)
 	discordSession.AddHandler(MemberRemoveGuildEvent)
 	discordSession.AddHandler(MessageXD)
