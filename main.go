@@ -1,8 +1,11 @@
 package main
 
 import (
+	"database/sql"
+	_ "github.com/ziutek/mymysql/godrv"
 	"fmt"
 	"github.com/bwmarrin/discordgo"
+	"gopkg.in/gorp.v2"
 	"math/rand"
 	"os"
 	"os/signal"
@@ -10,7 +13,20 @@ import (
 	"time"
 )
 
+var dbMap *gorp.DbMap
+
 func main()  {
+	fmt.Println("Init database connection...")
+	mysql, err := sql.Open("mymysql", "xxx")
+	if err != nil {
+		panic(err)
+	}
+	dbMap = &gorp.DbMap{
+		Db:              mysql,
+		Dialect:         gorp.MySQLDialect{"InnoDB", "UTF8"},
+	}
+	fmt.Println("Database connected!")
+
 	rand.Seed(time.Now().UTC().UnixNano())
 	fmt.Println("Set random time base")
 
@@ -27,6 +43,8 @@ func main()  {
 	discordSession.AddHandler(MemberRemoveGuildEvent)
 	discordSession.AddHandler(MessageXD)
 	discordSession.AddHandler(PleasePornGif)
+
+	RegisterUpdateListeners(discordSession)
 
 	discordSession.Identify.Intents = discordgo.MakeIntent(discordgo.IntentsAll)
 
