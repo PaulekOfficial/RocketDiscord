@@ -47,8 +47,12 @@ func RegisterUpdateListeners(session *discordgo.Session) {
 		panic(err)
 	}
 
+	session.AddHandler(guildJoin)
 	session.AddHandler(guildUpdate)
+
 	session.AddHandler(guildMemberUpdate)
+	session.AddHandler(guildMemberAdd)
+	session.AddHandler(guildMemberRemove)
 }
 
 func guildJoin(session *discordgo.Session, event *discordgo.GuildCreate) {
@@ -69,7 +73,6 @@ func guildJoin(session *discordgo.Session, event *discordgo.GuildCreate) {
 		//JoinedAt:                 event.JoinedAt,
 		JoinedAt:                 time.Now(),
 		AfkTimeout:               event.AfkTimeout,
-		MemberCount:              event.MemberCount,
 		EmbedEnabled:             event.EmbedEnabled,
 		Large:                    event.Large,
 		MaxMembers:               event.MaxMembers,
@@ -85,8 +88,6 @@ func guildJoin(session *discordgo.Session, event *discordgo.GuildCreate) {
 		PreferredLocale:          event.PreferredLocale,
 		PublicUpdatesChannelID:   event.PublicUpdatesChannelID,
 		MaxVideoChannelUsers:     event.MaxVideoChannelUsers,
-		ApproximateMemberCount:   event.ApproximateMemberCount,
-		ApproximatePresenceCount: event.ApproximatePresenceCount,
 		Permissions:              event.Permissions,
 		Timestamp:                time.Now(),
 	})
@@ -117,7 +118,6 @@ func guildUpdate(session *discordgo.Session, event *discordgo.GuildUpdate) {
 		MemberCount:              event.MemberCount,
 		EmbedEnabled:             event.EmbedEnabled,
 		Large:                    event.Large,
-		MaxMembers:               event.MaxMembers,
 		Unavailable:              event.Unavailable,
 		WidgetEnabled:            event.WidgetEnabled,
 		WidgetChannelID:          event.WidgetChannelID,
@@ -130,16 +130,13 @@ func guildUpdate(session *discordgo.Session, event *discordgo.GuildUpdate) {
 		PreferredLocale:          event.PreferredLocale,
 		PublicUpdatesChannelID:   event.PublicUpdatesChannelID,
 		MaxVideoChannelUsers:     event.MaxVideoChannelUsers,
-		ApproximateMemberCount:   event.ApproximateMemberCount,
-		ApproximatePresenceCount: event.ApproximatePresenceCount,
 		Permissions:              event.Permissions,
-		Timestamp:                time.Now(),
 	})
 	if err != nil {
 		panic(err)
 	}
 
-	fmt.Println(fmt.Sprintf("Guild %s update, affected %T rows", event.Name, count))
+	fmt.Println(fmt.Sprintf("Guild %s update, affected %d rows", event.Name, count))
 }
 
 func guildMemberUpdate(session *discordgo.Session, event *discordgo.GuildMemberUpdate) {
@@ -150,40 +147,51 @@ func guildMemberUpdate(session *discordgo.Session, event *discordgo.GuildMemberU
 	}
 	count, err := dbMap.Update(&RocketGuild{
 		GuildID:                  guild.ID,
-		Name:                     guild.Name,
-		Icon:                     guild.Icon,
-		Region:                   guild.Region,
-		AfkChannelID:             guild.AfkChannelID,
-		EmbedChannelID:           guild.EmbedChannelID,
-		OwnerID:                  guild.OwnerID,
-		Owner:                    guild.Owner,
-		//JoinedAt:                 event.JoinedAt,
-		JoinedAt:                 time.Now(),
-		AfkTimeout:               guild.AfkTimeout,
 		MemberCount:              guild.MemberCount,
-		EmbedEnabled:             guild.EmbedEnabled,
-		Large:                    guild.Large,
-		MaxMembers:               guild.MaxMembers,
-		Unavailable:              guild.Unavailable,
-		WidgetEnabled:            guild.WidgetEnabled,
-		WidgetChannelID:          guild.WidgetChannelID,
-		SystemChannelID:          guild.SystemChannelID,
-		RulesChannelID:           guild.RulesChannelID,
-		VanityURLCode:            guild.VanityURLCode,
-		Description:              guild.Description,
-		Banner:                   guild.Banner,
-		PremiumSubscriptionCount: guild.PremiumSubscriptionCount,
-		PreferredLocale:          guild.PreferredLocale,
-		PublicUpdatesChannelID:   guild.PublicUpdatesChannelID,
-		MaxVideoChannelUsers:     guild.MaxVideoChannelUsers,
 		ApproximateMemberCount:   guild.ApproximateMemberCount,
 		ApproximatePresenceCount: guild.ApproximatePresenceCount,
-		Permissions:              guild.Permissions,
-		Timestamp:                time.Now(),
 	})
 	if err != nil {
 		panic(err)
 	}
 
-	fmt.Println(fmt.Sprintf("Guild members %s update, affected %T rows", guild.Name, count))
+	fmt.Println(fmt.Sprintf("Guild members join %s update, affected %d rows", guild.Name, count))
+}
+
+func guildMemberAdd(session *discordgo.Session, event *discordgo.GuildMemberAdd) {
+	guild, err := session.Guild(event.GuildID)
+	if err != nil {
+		_ = fmt.Errorf("error while getting guild pointer on member update %v", err)
+		return
+	}
+	count, err := dbMap.Update(&RocketGuild{
+		GuildID:                  guild.ID,
+		MemberCount:              guild.MemberCount,
+		ApproximateMemberCount:   guild.ApproximateMemberCount,
+		ApproximatePresenceCount: guild.ApproximatePresenceCount,
+	})
+	if err != nil {
+		panic(err)
+	}
+
+	fmt.Println(fmt.Sprintf("Guild members quit %s update, affected %d rows", guild.Name, count))
+}
+
+func guildMemberRemove(session *discordgo.Session, event *discordgo.GuildMemberRemove) {
+	guild, err := session.Guild(event.GuildID)
+	if err != nil {
+		_ = fmt.Errorf("error while getting guild pointer on member update %v", err)
+		return
+	}
+	count, err := dbMap.Update(&RocketGuild{
+		GuildID:                  guild.ID,
+		MemberCount:              guild.MemberCount,
+		ApproximateMemberCount:   guild.ApproximateMemberCount,
+		ApproximatePresenceCount: guild.ApproximatePresenceCount,
+	}, "")
+	if err != nil {
+		panic(err)
+	}
+
+	fmt.Println(fmt.Sprintf("Guild members %s update, affected %d rows", guild.Name, count))
 }

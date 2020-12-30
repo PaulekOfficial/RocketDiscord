@@ -1,6 +1,9 @@
 package commands
 
-import "github.com/bwmarrin/discordgo"
+import (
+	"github.com/andersfylling/disgord"
+	"github.com/bwmarrin/discordgo"
+)
 
 func init() {
 	command := newCommand("ban", true, false, onBanCommand)
@@ -10,8 +13,8 @@ func init() {
 	command.register()
 }
 
-func onBanCommand(session *discordgo.Session, event *discordgo.MessageCreate, guild *discordgo.Guild, args []string) error {
-	_, err := session.ChannelMessageSend(event.ChannelID, ":satellite_orbital: Not implemented yet")
+func onBanCommand(session disgord.Session, event *disgord.MessageCreate, guild disgord.GuildQueryBuilder, args []string) error {
+	_, err := session.SendMsg(event.Message.ChannelID, ":satellite_orbital: Not implemented yet")
 	if err != nil {
 		return err
 	}
