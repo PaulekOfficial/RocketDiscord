@@ -9,7 +9,7 @@ func init() {
 	command.register()
 }
 
-func onHelpCommand(session disgord.Session, event *disgord.MessageCreate, guild disgord.GuildQueryBuilder, args []string) error {
+func onHelpCommand(session disgord.Session, event *disgord.MessageCreate, guild *disgord.Guild, args []string) error {
 	_, err := session.SendMsg(event.Message.ChannelID, ":satellite_orbital: There is no help for u.")
 	if err != nil {
 		return err

@@ -15,7 +15,7 @@ func init() {
 	command.register()
 }
 
-func shutdownCommand(session disgord.Session, event *disgord.MessageCreate, guild disgord.GuildQueryBuilder, args []string) error {
+func shutdownCommand(session disgord.Session, event *disgord.MessageCreate, guild *disgord.Guild, args []string) error {
 	//if event.Author.ID != "419203785190014987" {
 	//	_, err := session.ChannelMessageSend(event.ChannelID, ":rotating_light: Brak wystarczających uprawnień do użycia tego polecenia! Wymagany poziom dostępu :infinity:")
 	//	if err != nil {

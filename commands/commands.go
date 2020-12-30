@@ -1,13 +1,24 @@
 package commands
 
 import (
+	"context"
 	"fmt"
 	"github.com/andersfylling/disgord"
+	"github.com/sirupsen/logrus"
+	"os"
+	"strings"
 )
 
 var (
 	availableCommands = make(map[string]Command)
 )
+
+var Log = &logrus.Logger{
+	Out:       os.Stderr,
+	Formatter: new(logrus.TextFormatter),
+	Hooks:     make(logrus.LevelHooks),
+	Level:     logrus.InfoLevel,
+}
 
 type Command struct {
 	Name                 string
@@ -15,7 +26,7 @@ type Command struct {
 
 	GuildOwnerOnly       bool
 	RequirePermissions   bool
-	PermissionsLevel     int
+	PermissionsLevel     disgord.PermissionBit
 
 	RequireArguments     bool
 	MinimumArgumentsSize int
@@ -23,10 +34,19 @@ type Command struct {
 
 	NSFW                 bool
 
-	Exec                 func(disgord.Session, *disgord.MessageCreate, disgord.GuildQueryBuilder, []string) error
+	Exec                 func(disgord.Session, *disgord.MessageCreate, *disgord.Guild, []string) error
 }
 
-func newCommand(name string, requirePermissions bool, nsfw bool, f func(disgord.Session, *disgord.MessageCreate, disgord.GuildQueryBuilder, []string) error) Command {
+type GuildCaller struct {
+	session disgord.Session
+	guildID disgord.Snowflake
+}
+
+func (caller *GuildCaller) Guild(id disgord.Snowflake) disgord.GuildQueryBuilder {
+	return caller.session.Guild(id)
+}
+
+func newCommand(name string, requirePermissions bool, nsfw bool, f func(disgord.Session, *disgord.MessageCreate, *disgord.Guild, []string) error) Command {
 	if f == nil {
 		panic("function is nil")
 	}
@@ -39,7 +59,7 @@ func newCommand(name string, requirePermissions bool, nsfw bool, f func(disgord.
 	}
 }
 
-func (command *Command) setPermissions(requirePermissions bool, guildOwnerOnly bool, permissionsLevel int) {
+func (command *Command) setPermissions(requirePermissions bool, guildOwnerOnly bool, permissionsLevel disgord.PermissionBit) {
 	command.GuildOwnerOnly = guildOwnerOnly
 	command.RequirePermissions = requirePermissions
 	command.PermissionsLevel = permissionsLevel
@@ -60,88 +80,165 @@ func (command *Command) setHelpMessage(message string) {
 func (command *Command) register() Command {
 	availableCommands[command.Name] = *command
 
-	fmt.Printf("registered new command -> %s \n", command.Name)
+	Log.WithFields(logrus.Fields{
+		"command-name": command.Name,
+	}).Info("Registered new command")
 
 	return *command
 }
 
-func ParseMessage(session disgord.Session, event *disgord.MessageCreate, guild disgord.GuildQueryBuilder, message string) {
-	////Check if message contains command prefix
-	//if !strings.HasPrefix(message, "!") {
-	//	return
-	//}
-	//
-	////Parse to arguments
-	//args := strings.Fields(message)
-	//
-	////Return if no args provided
-	//if len(args) <= 0 {
-	//	return
-	//}
-	//
-	////Parse command name
-	//commandName := strings.Replace(args[0], "!", "", 1)
-	//
-	////Now we check if everything is clear to lift off
-	//command, ok := availableCommands[commandName]
-	//if !ok {
-	//	return
-	//}
-	//
-	////Load channel to memory
-	//channel := session.Channel(event.Message.ChannelID)
-	//if channel == nil {
-	//	_ = fmt.Errorf("could not get channel for id %s, %s", event.Message.GuildID, err)
-	//}
-	//
-	////Check guild member permissions
-	//permissionLevel, err := channelPermissionLevel(session, event.Message.ChannelID, event.Message.Member.UserID)
-	//if err != nil {
-	//	_ = fmt.Errorf("could not get user permissionlevel for user %s, %s", event.Message.Member.Nick, err)
-	//	return
-	//}
-	//if (command.GuildOwnerOnly && event.Author.ID != guild.OwnerID) || (command.RequirePermissions && permissionLevel&command.PermissionsLevel <= 0) {
-	//	_, err := session.ChannelMessageSend(event.ChannelID, fmt.Sprintf(":rotating_light: Brak wystarczających uprawnień do użycia tego polecenia! Wymagany poziom dostępu %d.", command.PermissionsLevel))
-	//	if err != nil {
-	//		_ = fmt.Errorf("an error ocurrent while performing no permissions %s command warning: %s", commandName, err)
-	//	}
-	//	return
-	//}
-	//
-	////Arguments check
-	//length := len(args[1:])
-	//if (length > command.MaximumArgumentsSize && command.MaximumArgumentsSize != -1) || (length < command.MinimumArgumentsSize && command.MinimumArgumentsSize != -1) {
-	//	_, err := session.ChannelMessageSend(event.ChannelID, fmt.Sprintf(":boom: Niepoprawne użycie polecenia %s.", commandName))
-	//	if err != nil {
-	//		_ = fmt.Errorf("an error ocurrent while performing bad usage %s command warning: %s", commandName, err)
-	//	}
-	//	_, err = session.ChannelMessageSend(event.ChannelID, fmt.Sprintf(":star: Wyświetlam pomoc dla polecenia %s: %s", commandName, command.HelpMessage))
-	//	if err != nil {
-	//		_ = fmt.Errorf("an error ocurrent while performing help usage %s command warning: %s", commandName, err)
-	//	}
-	//	return
-	//}
-	//
-	////Check if command is executed on nsfw channel
-	//if !channel.NSFW && command.NSFW {
-	//	_, err := session.ChannelMessageSend(event.ChannelID, ":no_entry: Polecienie __**MOŻE**__ być tylko wykonane na kanale __**NSFW**__!")
-	//	if err != nil {
-	//		_ = fmt.Errorf("an error ocurrent while performing nfsw %s command warning: %s", commandName, err)
-	//	}
-	//	return
-	//}
-	//
-	////Logs
-	//fmt.Printf("Executing user command. Command name: %s, user: %s, guild: %s, channel: %v, timestamp: %s \n", commandName, event.Author.Username, guild.Name, event.GuildID, time.Now().String())
-	//
-	////Execute
-	//err = command.Exec(session, event, guild, args[1:])
-	//if err != nil {
-	//	_ = fmt.Errorf("an error ocurrent while performing %s command: %s", commandName, err)
-	//}
+func ParseMessage(session disgord.Session, event *disgord.MessageCreate, guild *disgord.Guild, message string) {
+	//Check if message contains command prefix
+	if !strings.HasPrefix(message, "!") {
+		return
+	}
+
+	//Parse to arguments
+	args := strings.Fields(message)
+
+	//Return if no args provided
+	if len(args) <= 0 {
+		return
+	}
+
+	//Parse command name
+	commandName := strings.Replace(args[0], "!", "", 1)
+
+	//Now we check if everything is clear to lift off
+	command, ok := availableCommands[commandName]
+	if !ok {
+		return
+	}
+
+	//Load channel to memory
+	channel := session.Channel(event.Message.ChannelID)
+
+	//Check guild member permissions
+	channelID := event.Message.ChannelID
+	memberID := event.Message.Member.UserID
+	permissionLevel, err := channelPermissionLevel(session, channelID, memberID, guild.ID)
+	if err != nil {
+		Log.WithFields(logrus.Fields{
+			"member-memberId": memberID,
+			"member-name": event.Message.Member.Nick,
+			"guild-id": event.Message.GuildID.String(),
+			"guild-name": guild.Name,
+			"content":  event.Message.Content,
+			"command-name": commandName,
+		}).Errorf("Could not get user permissionlevel", err)
+		return
+	}
+	if (command.GuildOwnerOnly && memberID.String() != guild.OwnerID.String()) || (command.RequirePermissions && permissionLevel&command.PermissionsLevel <= 0) {
+		_, err := session.SendMsg(channelID, fmt.Sprintf(":rotating_light: Brak wystarczających uprawnień do użycia tego polecenia! Wymagany poziom dostępu %d.", command.PermissionsLevel))
+		if err != nil {
+			Log.WithFields(logrus.Fields{
+				"member-memberId": memberID,
+				"member-name": event.Message.Member.Nick,
+				"guild-id": event.Message.GuildID.String(),
+				"guild-name": guild.Name,
+				"content":  event.Message.Content,
+				"command-name": commandName,
+			}).Errorf("Could not send no permissions warning", err)
+			return
+		}
+		return
+	}
+
+	//Arguments check
+	length := len(args[1:])
+	if (length > command.MaximumArgumentsSize && command.MaximumArgumentsSize != -1) || (length < command.MinimumArgumentsSize && command.MinimumArgumentsSize != -1) {
+		_, err := session.SendMsg(channelID, fmt.Sprintf(":boom: Niepoprawne użycie polecenia %s.", commandName))
+		if err != nil {
+			Log.WithFields(logrus.Fields{
+				"member-memberId": memberID,
+				"member-name": event.Message.Member.Nick,
+				"guild-id": event.Message.GuildID.String(),
+				"guild-name": guild.Name,
+				"content":  event.Message.Content,
+				"command-name": commandName,
+			}).Errorf("Could send help message usage help", err)
+			return
+		}
+		_, err = session.SendMsg(channelID, fmt.Sprintf(":star: Wyświetlam pomoc dla polecenia %s: %s", commandName, command.HelpMessage))
+		if err != nil {
+			Log.WithFields(logrus.Fields{
+				"member-memberId": memberID,
+				"member-name": event.Message.Member.Nick,
+				"guild-id": event.Message.GuildID.String(),
+				"guild-name": guild.Name,
+				"content":  event.Message.Content,
+				"command-name": commandName,
+			}).Errorf("Could send help message usage", err)
+			return
+		}
+		return
+	}
+
+	//Check if command is executed on nsfw channel
+	pureChannel, err := channel.Get()
+	if err != nil {
+		return
+	}
+
+	if !pureChannel.NSFW && command.NSFW {
+		_, err := session.SendMsg(channelID, ":no_entry: Polecienie __**MOŻE**__ być tylko wykonane na kanale __**NSFW**__!")
+		if err != nil {
+			Log.WithFields(logrus.Fields{
+				"member-memberId": memberID,
+				"member-name": event.Message.Member.Nick,
+				"guild-id": event.Message.GuildID.String(),
+				"guild-name": guild.Name,
+				"content":  event.Message.Content,
+				"command-name": commandName,
+			}).Errorf("Could not check nsfw channel status", err)
+			return
+		}
+		return
+	}
+
+	//Logs
+	Log.WithFields(logrus.Fields{
+		"member-memberId": memberID,
+		"member-name": event.Message.Member.Nick,
+		"guild-id": event.Message.GuildID.String(),
+		"guild-name": guild.Name,
+		"content":  event.Message.Content,
+		"command-name": commandName,
+	}).Debug("Executing command")
+
+	//Execute
+	err = command.Exec(session, event, guild, args[1:])
+	if err != nil {
+		Log.WithFields(logrus.Fields{
+			"member-memberId": memberID,
+			"member-name": event.Message.Member.Nick,
+			"guild-id": event.Message.GuildID.String(),
+			"guild-name": guild.Name,
+			"content":  event.Message.Content,
+			"command-name": commandName,
+		}).Errorf("Command general error", err)
+		return
+	}
 }
 
-func channelPermissionLevel(session disgord.Session, channelID disgord.Snowflake, memberID disgord.Snowflake) (permissionLevel int, err error) {
-	//permissionLevel, err = session.UserChannelPermissions(memberID, channelID)
+func channelPermissionLevel(session disgord.Session, channelID disgord.Snowflake, memberID disgord.Snowflake, guildID disgord.Snowflake) (permissionLevel disgord.PermissionBit, err error) {
+	//Get pure channel object
+	channel, err := session.Channel(channelID).Get()
+	if err != nil {
+		return
+	}
+
+	guild := session.Guild(guildID)
+
+	member, err := guild.Member(memberID).Get()
+	if err != nil {
+		return
+	}
+
+	permissionLevel, err = channel.GetPermissions(context.TODO(), &GuildCaller{
+		session: session,
+		guildID: guildID,
+	}, member)
+
 	return
 }

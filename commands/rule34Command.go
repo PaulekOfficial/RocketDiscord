@@ -11,7 +11,7 @@ func init() {
 	command.register()
 }
 
-func onRule34Request(session disgord.Session, event *disgord.MessageCreate, guild disgord.GuildQueryBuilder, args []string) error {
+func onRule34Request(session disgord.Session, event *disgord.MessageCreate, guild *disgord.Guild, args []string) error {
 	_, err := session.SendMsg(event.Message.ChannelID, ":satellite_orbital: Not implemented yet.")
 	if err != nil {
 		return err
