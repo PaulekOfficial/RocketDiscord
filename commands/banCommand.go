@@ -2,12 +2,11 @@ package commands
 
 import (
 	"github.com/andersfylling/disgord"
-	"github.com/bwmarrin/discordgo"
 )
 
 func init() {
 	command := newCommand("ban", true, false, onBanCommand)
-	command.setPermissions(true, false, discordgo.PermissionAdministrator)
+	command.setPermissions(true, false, disgord.PermissionAdministrator)
 	command.setArgumentsRequirements(true, 1, -1)
 	command.setHelpMessage("Polecenie pozwalające zbanowanie uzytkownika, wymaga conajmniej uprawnień administratora. Użycie: !ban @user <reason>")
 	command.register()

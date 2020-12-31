@@ -1,6 +1,7 @@
 package main
 
 import (
+	"RocketDiscord/cache"
 	"context"
 	"database/sql"
 	"errors"
@@ -75,6 +76,7 @@ func handle(client *disgord.Client) error {
 	client.Gateway().MessageCreate(CommandMessageCreate, PleasePornGif, MessageXD)
 	client.Gateway().GuildMemberRemove(MemberRemoveGuildEvent)
 	client.Gateway().GuildMemberAdd(MemberAddGuildEvent)
+	client.Gateway().VoiceStateUpdate(cache.VoiceStateUpdate)
 	client.Gateway().Ready(ReadyEvent)
 
 

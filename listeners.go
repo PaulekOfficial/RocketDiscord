@@ -11,6 +11,11 @@ import (
 	"time"
 )
 
+//////////////////////////////////////////////////////
+//
+// LISTENERS
+//
+//////////////////////////////////////////////////////
 func ReadyEvent(session disgord.Session, event *disgord.Ready) {
 	err := session.UpdateStatusString("Ready to lift off!")
 	if err != nil {
