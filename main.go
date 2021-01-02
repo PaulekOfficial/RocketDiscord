@@ -5,9 +5,9 @@ import (
 	"context"
 	"database/sql"
 	"errors"
+	"github.com/andersfylling/disgord"
 	"github.com/sirupsen/logrus"
 	_ "github.com/ziutek/mymysql/godrv"
-	"github.com/andersfylling/disgord"
 	"gopkg.in/gorp.v2"
 	"math/rand"
 	"os"
@@ -74,8 +74,8 @@ func handle(client *disgord.Client) error {
 	//Register all listeners
 	client.Gateway().WithMiddleware(mdlw.filterOutHumans, mdlw.filterOutOthersMsgs)
 	client.Gateway().MessageCreate(CommandMessageCreate, PleasePornGif, MessageXD)
-	client.Gateway().GuildMemberRemove(MemberRemoveGuildEvent)
-	client.Gateway().GuildMemberAdd(MemberAddGuildEvent)
+	//client.Gateway().GuildMemberRemove(MemberRemoveGuildEvent)
+	//client.Gateway().GuildMemberAdd(MemberAddGuildEvent)
 	client.Gateway().VoiceStateUpdate(cache.VoiceStateUpdate)
 	client.Gateway().Ready(ReadyEvent)
 

@@ -2,14 +2,14 @@ package cache
 
 import (
 	"github.com/andersfylling/disgord"
-	"github.com/kkdai/youtube/v2"
+	"github.com/sirupsen/logrus"
 	"io"
 	"time"
 )
 
-var voiceStates map[disgord.Snowflake]*disgord.VoiceState = make(map[disgord.Snowflake]*disgord.VoiceState)
+var voiceStates = make(map[disgord.Snowflake]*disgord.VoiceState)
 
-var musicStates map[disgord.Snowflake]*MusicBotState = make(map[disgord.Snowflake]*MusicBotState)
+var musicStates = make(map[disgord.Snowflake]*MusicBotState)
 
 type MusicBotState struct {
 	GuildId        disgord.Snowflake
@@ -25,10 +25,38 @@ type MusicBotState struct {
 
 type MusicBotTrack struct {
 	Stream     io.Reader
+	URL        string
 	Name       string
 	Playback   *time.Duration
-	Duration   *time.Duration
-	YtFormat   *youtube.Format
+	Duration   time.Duration
+}
+
+func init()  {
+	ticker := time.NewTicker(time.Second * 5)
+
+	go func() {
+		for {
+			select {
+				case <-ticker.C:
+					for _, musicState := range GetVoiceStates() {
+						if !musicState.Running && time.Since(musicState.LastPlay) >= time.Second * 10 {
+							if musicState.Voice == nil {
+								continue
+							}
+
+							err := musicState.Voice.Close()
+							if err != nil {
+								logrus.WithFields(logrus.Fields{
+									"guild-id": musicState.GuildId,
+									"music-state": musicState,
+								}).Error("Failed to play songs", err)
+							}
+							DeleteGuildMusicState(musicState.GuildId)
+						}
+					}
+			}
+		}
+	}()
 }
 
 func VoiceStateUpdate(session disgord.Session, event *disgord.VoiceStateUpdate) {

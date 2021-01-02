@@ -1,6 +1,7 @@
 package commands
 
 import (
+	"RocketDiscord/cache"
 	"context"
 	"fmt"
 	"github.com/andersfylling/disgord"
@@ -88,8 +89,11 @@ func (command *Command) register() Command {
 }
 
 func ParseMessage(session disgord.Session, event *disgord.MessageCreate, guild *disgord.Guild, message string) {
+	guildSettings := cache.CreateOrGetGuildSettings(guild.ID)
+	commandPrefix := guildSettings.CommandPrefix
+
 	//Check if message contains command prefix
-	if !strings.HasPrefix(message, "!") {
+	if !strings.HasPrefix(message, commandPrefix) {
 		return
 	}
 
@@ -102,7 +106,7 @@ func ParseMessage(session disgord.Session, event *disgord.MessageCreate, guild *
 	}
 
 	//Parse command name
-	commandName := strings.Replace(args[0], "!", "", 1)
+	commandName := strings.Replace(args[0], commandPrefix, "", 1)
 
 	//Now we check if everything is clear to lift off
 	command, ok := availableCommands[commandName]

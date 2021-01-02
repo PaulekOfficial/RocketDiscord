@@ -1,6 +1,7 @@
 package main
 
 import (
+	"RocketDiscord/cache"
 	"RocketDiscord/commands"
 	"fmt"
 	"github.com/andersfylling/disgord"
@@ -25,7 +26,12 @@ func ReadyEvent(session disgord.Session, event *disgord.Ready) {
 
 func MemberAddGuildEvent(session disgord.Session, event *disgord.GuildMemberAdd) {
 	username := event.Member.User.Username
-	channelID := disgord.Snowflake(770728332773425203)
+	guildSettings := cache.CreateOrGetGuildSettings(event.Member.GuildID)
+	channelID := guildSettings.WelcomeChannel
+
+	if channelID.IsZero() {
+		return
+	}
 
 	memberId := event.Member.User.ID
 	guildID := event.Member.GuildID
@@ -97,7 +103,12 @@ func MemberAddGuildEvent(session disgord.Session, event *disgord.GuildMemberAdd)
 
 func MemberRemoveGuildEvent(session disgord.Session, event *disgord.GuildMemberRemove) {
 	username := event.User.Username
-	channelID := disgord.Snowflake(770728332773425203)
+	guildSettings := cache.CreateOrGetGuildSettings(event.GuildID)
+	channelID := guildSettings.WelcomeChannel
+
+	if channelID.IsZero() {
+		return
+	}
 
 	memberId := event.User.ID
 	guildID := event.GuildID
