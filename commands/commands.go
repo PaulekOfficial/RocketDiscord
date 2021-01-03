@@ -129,7 +129,7 @@ func ParseMessage(session disgord.Session, event *disgord.MessageCreate, guild *
 			"guild-name": guild.Name,
 			"content":  event.Message.Content,
 			"command-name": commandName,
-		}).Errorf("Could not get user permissionlevel", err)
+		}).WithError(err).Error("Could not get user permissions level")
 		return
 	}
 	if (command.GuildOwnerOnly && memberID.String() != guild.OwnerID.String()) || (command.RequirePermissions && permissionLevel&command.PermissionsLevel <= 0) {
@@ -142,7 +142,7 @@ func ParseMessage(session disgord.Session, event *disgord.MessageCreate, guild *
 				"guild-name": guild.Name,
 				"content":  event.Message.Content,
 				"command-name": commandName,
-			}).Errorf("Could not send no permissions warning", err)
+			}).WithError(err).Error("Could not send no permissions warning")
 			return
 		}
 		return
@@ -160,7 +160,7 @@ func ParseMessage(session disgord.Session, event *disgord.MessageCreate, guild *
 				"guild-name": guild.Name,
 				"content":  event.Message.Content,
 				"command-name": commandName,
-			}).Errorf("Could send help message usage help", err)
+			}).WithError(err).Error("Could send help message usage help")
 			return
 		}
 		_, err = session.SendMsg(channelID, fmt.Sprintf(":star: Wyświetlam pomoc dla polecenia %s: %s", commandName, command.HelpMessage))
@@ -172,7 +172,7 @@ func ParseMessage(session disgord.Session, event *disgord.MessageCreate, guild *
 				"guild-name": guild.Name,
 				"content":  event.Message.Content,
 				"command-name": commandName,
-			}).Errorf("Could send help message usage", err)
+			}).WithError(err).Error("Could send help message usage")
 			return
 		}
 		return
@@ -194,7 +194,7 @@ func ParseMessage(session disgord.Session, event *disgord.MessageCreate, guild *
 				"guild-name": guild.Name,
 				"content":  event.Message.Content,
 				"command-name": commandName,
-			}).Errorf("Could not check nsfw channel status", err)
+			}).WithError(err).Error("Could not check nsfw channel status")
 			return
 		}
 		return
@@ -220,7 +220,7 @@ func ParseMessage(session disgord.Session, event *disgord.MessageCreate, guild *
 			"guild-name": guild.Name,
 			"content":  event.Message.Content,
 			"command-name": commandName,
-		}).Errorf("Command general error", err)
+		}).WithError(err).Error("Command general error")
 		return
 	}
 }

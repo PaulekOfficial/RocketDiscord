@@ -51,6 +51,8 @@ func main()  {
 
 	Log.Info("Bot starting...")
 
+	RegisterModLogModule()
+
 	botClient := disgord.New(botSettings)
 
 	err = handle(botClient)
@@ -73,11 +75,16 @@ func handle(client *disgord.Client) error {
 
 	//Register all listeners
 	client.Gateway().WithMiddleware(mdlw.filterOutHumans, mdlw.filterOutOthersMsgs)
+
 	client.Gateway().MessageCreate(CommandMessageCreate, PleasePornGif, MessageXD)
-	//client.Gateway().GuildMemberRemove(MemberRemoveGuildEvent)
-	//client.Gateway().GuildMemberAdd(MemberAddGuildEvent)
+	client.Gateway().GuildMemberRemove(MemberRemoveGuildEvent)
+	client.Gateway().GuildMemberAdd(MemberAddGuildEvent)
 	client.Gateway().VoiceStateUpdate(cache.VoiceStateUpdate)
 	client.Gateway().Ready(ReadyEvent)
+
+	client.Gateway().MessageCreate(LogMessage)
+	client.Gateway().MessageUpdate(LogMessageUpdate)
+	client.Gateway().UserUpdate(LogUserUpdate)
 
 
 	// connect now, and disconnect on system interrupt

@@ -43,7 +43,7 @@ func MemberAddGuildEvent(session disgord.Session, event *disgord.GuildMemberAdd)
 			"member-memberId": memberId,
 			"member-name": event.Member.Nick,
 			"guild-memberId":  guildID.String(),
-		}).Errorf("Guild member join event fail for avatar url", err)
+		}).WithError(err).Error("Guild member join event fail for avatar url")
 	}
 
 	image := &disgord.EmbedImage {
@@ -59,7 +59,7 @@ func MemberAddGuildEvent(session disgord.Session, event *disgord.GuildMemberAdd)
 			"member-memberId": memberId,
 			"member-name": event.Member.Nick,
 			"guild-memberId":  guildID.String(),
-		}).Errorf("Guild member join event fail for getting guild members", err)
+		}).WithError(err).Error("Guild member join event fail for getting guild members")
 	}
 
 	fields := []*disgord.EmbedField{
@@ -97,7 +97,7 @@ func MemberAddGuildEvent(session disgord.Session, event *disgord.GuildMemberAdd)
 			"member-memberId": memberId,
 			"member-name": event.Member.Nick,
 			"guild-memberId":  guildID.String(),
-		}).Errorf("Guild member join event fail for sending embed message", err)
+		}).WithError(err).Error("Guild member join event fail for sending embed message")
 	}
 }
 
@@ -120,7 +120,7 @@ func MemberRemoveGuildEvent(session disgord.Session, event *disgord.GuildMemberR
 			"member-memberId": memberId,
 			"member-name": event.User.Username,
 			"guild-memberId":  guildID.String(),
-		}).Errorf("Guild member quit event fail for avatar url", err)
+		}).WithError(err).Error("Guild member quit event fail for avatar url")
 	}
 
 	image := &disgord.EmbedImage {
@@ -135,7 +135,7 @@ func MemberRemoveGuildEvent(session disgord.Session, event *disgord.GuildMemberR
 			"member-memberId": memberId,
 			"member-name": event.User.Username,
 			"guild-memberId":  guildID.String(),
-		}).Errorf("Guild member quit event fail for getting guild members", err)
+		}).WithError(err).Error("Guild member quit event fail for getting guild members")
 	}
 
 	fields := []*disgord.EmbedField{
@@ -173,7 +173,7 @@ func MemberRemoveGuildEvent(session disgord.Session, event *disgord.GuildMemberR
 			"member-memberId": memberId,
 			"member-name": event.User.Username,
 			"guild-memberId":  guildID.String(),
-		}).Errorf("Guild member quit event fail for sending embed message", err)
+		}).WithError(err).Error("Guild member quit event fail for sending embed message")
 	}
 }
 
@@ -193,7 +193,7 @@ func MessageXD(session disgord.Session, event *disgord.MessageCreate) {
 			"member-name": event.Message.Member.Nick,
 			"guild-id": event.Message.GuildID.String(),
 			"content":  event.Message.Content,
-		}).Errorf("Guild member xd event fail for sending message", err)
+		}).WithError(err).Error("Guild member xd event fail for sending message")
 	}
 }
 
@@ -209,7 +209,7 @@ func PleasePornGif(session disgord.Session, event *disgord.MessageCreate) {
 			"member-name": event.Message.Member.Nick,
 			"guild-id": event.Message.GuildID.String(),
 			"content":  event.Message.Content,
-		}).Errorf("Guild member porngif event fail for sending message", err)
+		}).WithError(err).Error("Guild member porngif event fail for sending message")
 	}
 }
 
@@ -222,8 +222,10 @@ func CommandMessageCreate(session disgord.Session, event *disgord.MessageCreate)
 			"member-name": event.Message.Member.Nick,
 			"guild-id": event.Message.GuildID.String(),
 			"content":  event.Message.Content,
-		}).Errorf("Guild command fail", err)
+		}).WithError(err).Error("Guild command fail")
 	}
 
-	commands.ParseMessage(session, event, guild, event.Message.Content)
+	go func() {
+		commands.ParseMessage(session, event, guild, event.Message.Content)
+	}()
 }

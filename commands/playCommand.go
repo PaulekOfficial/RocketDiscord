@@ -139,10 +139,10 @@ func startPlaying(session disgord.Session, musicState *cache.MusicBotState, chan
 		err = utils.PlayDCAAudio(musicState.GuildId, session, message)
 		if err != nil {
 			_, err = session.SendMsg(channelId, ":boom: Oj cos poszlo nie tak, nie mogę puścić muzyki :(.")
-			logrus.WithFields(logrus.Fields{
+			logrus.WithError(err).WithFields(logrus.Fields{
 				"guild-id": message.GuildID,
 				"music-state": musicState,
-			}).Error("Failed to play songs", err)
+			}).Error("Failed to play songs")
 		}
 		musicState.Running = false
 	}()

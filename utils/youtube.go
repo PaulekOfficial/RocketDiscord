@@ -5,7 +5,7 @@ import (
 	"bytes"
 	"encoding/csv"
 	"github.com/andersfylling/disgord"
-	"github.com/kkdai/youtube/v2"
+	"github.com/kkdai/youtube"
 	"github.com/lithdew/bytesutil"
 	"github.com/valyala/fastjson"
 	"io/ioutil"
@@ -105,12 +105,20 @@ func SearchYoutubeVideos(keywords []string, page string) (query *YoutubeSearchQu
 }
 
 func GetYoutubeStreamMemory(args []string, session disgord.Session, channelID disgord.Snowflake) (track *cache.MusicBotTrack, err error) {
-	ytClient := youtube.Client{}
+	ytClient := youtube.Client{
+		Debug:      true,
+		HTTPClient: http.DefaultClient,
+	}
 
 	var video *youtube.Video
 	if len(args) == 1 && (strings.Contains(strings.ToLower(args[0]), "youtube.com") || strings.Contains(strings.ToLower(args[0]), "youtu.be")) {
 		//videoId := GetVideoIdFromLink(args[0])
 		video, err = ytClient.GetVideo(args[0])
+		if err != nil {
+			return nil, err
+		}
+
+		_, err = session.SendMsg(channelID, ":telescope: Ładuje podany utwór...")
 		if err != nil {
 			return nil, err
 		}
@@ -169,16 +177,24 @@ func GetYoutubeStreamMemory(args []string, session disgord.Session, channelID di
 	}
 
 	result, err := ytClient.GetStream(video, videoFormat)
+	if err != nil || result == nil {
+		return
+	}
+
+	buffer, err := ioutil.ReadAll(result.Body)
 	if err != nil {
 		return
 	}
 
+	//reader := ioutil.NopCloser(bytes.NewReader(buffer))
+
 	track = &cache.MusicBotTrack{
-		Stream:   result.Body,
-		URL:      "https://www.youtube.com/watch?v=" + video.ID,
-		Playback: nil,
-		Name:     video.Title,
-		Duration: video.Duration,
+		Stream:     bytes.NewReader(buffer),
+		MusicBytes: buffer,
+		URL:        "https://www.youtube.com/watch?v=" + video.ID,
+		Playback:   nil,
+		Name:       video.Title,
+		Duration:   video.Duration,
 	}
 
 	return

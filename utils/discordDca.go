@@ -2,6 +2,7 @@ package utils
 
 import (
 	"RocketDiscord/cache"
+	"bytes"
 	"fmt"
 	"github.com/andersfylling/disgord"
 	"github.com/jonas747/dca"
@@ -17,7 +18,7 @@ type RawSavedFrame struct {
 func PlayDCAAudio(guildID disgord.Snowflake, session disgord.Session, message *disgord.Message) (err error) {
 	opts := dca.StdEncodeOptions
 	opts.VBR = true
-	//opts.RawOutput = true
+	opts.RawOutput = true
 
 	musicState := cache.GetVoiceState(guildID)
 	if musicState == nil {
@@ -104,35 +105,13 @@ func PlayDCAAudio(guildID disgord.Snowflake, session disgord.Session, message *d
 		ticker.Stop()
 		encodeSession.Truncate()
 		musicState.Running = false
-		time.Sleep(time.Second * 2)
+		time.Sleep(time.Second)
+
 		if musicState.LoopTrack {
-			musicState.Running = true
-			for {
-				for _, savedFrame := range savedFrames {
-					if !musicState.Running {
-						break
-					}
-
-					if musicState.Paused {
-						for {
-							if !musicState.Paused {
-								break
-							}
-						}
-					}
-
-					err = musicState.Voice.SendOpusFrame(savedFrame.Payload)
-					if err != nil {
-						return err
-					}
-				}
-				if !musicState.LoopTrack {
-					musicState.Running = false
-					break
-				}
-			}
+			track.Stream = bytes.NewReader(track.MusicBytes)
 			continue
 		}
+
 		trackId++
 	}
 

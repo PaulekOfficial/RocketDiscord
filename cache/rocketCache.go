@@ -25,6 +25,7 @@ type MusicBotState struct {
 
 type MusicBotTrack struct {
 	Stream     io.Reader
+	MusicBytes []byte
 	URL        string
 	Name       string
 	Playback   *time.Duration
