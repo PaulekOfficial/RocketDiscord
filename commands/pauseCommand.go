@@ -6,10 +6,10 @@ import (
 )
 
 func init() {
-	command := newCommand("pause", false, false, onPauseCommand)
-	command.setArgumentsRequirements(true, -1, -1)
-	command.setHelpMessage("Polecenia pozwalajace na zatrzymanie muzyki na kanale glosowym. Użycie: /pause")
-	command.register()
+	command := NewCommand("pause", false, false, onPauseCommand)
+	command.SetArgumentsRequirements(true, -1, -1)
+	command.SetHelpMessage("Polecenia pozwalajace na zatrzymanie muzyki na kanale glosowym. Użycie: /pause")
+	command.Register()
 }
 
 func onPauseCommand(session disgord.Session, event *disgord.MessageCreate, guild *disgord.Guild, args []string) (err error) {

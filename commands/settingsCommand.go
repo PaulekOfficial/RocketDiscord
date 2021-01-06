@@ -5,15 +5,15 @@ import (
 )
 
 func init() {
-	command := newCommand("settings", false, false, onSettingsCommand)
+	command := NewCommand("settings", false, false, onSettingsCommand)
 
-	command.setArgumentsRequirements(true, -1, -1)
-	command.setHelpMessage("Polecenie rasy bogin, tylko nieliczni maja dostep do niego. Użycie: /settings <setting-name> <value>")
+	command.SetArgumentsRequirements(true, -1, -1)
+	command.SetHelpMessage("Polecenie rasy bogin, tylko nieliczni maja dostep do niego. Użycie: /settings <setting-name> <value>")
 
 	command.PermissionsLevel = disgord.PermissionAdministrator
 	command.RequirePermissions = true
 
-	command.register()
+	command.Register()
 }
 
 func onSettingsCommand(session disgord.Session, event *disgord.MessageCreate, guild *disgord.Guild, args []string) (err error) {

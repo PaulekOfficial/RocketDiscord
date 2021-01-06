@@ -5,11 +5,11 @@ import (
 )
 
 func init() {
-	command := newCommand("ban", true, false, onBanCommand)
-	command.setPermissions(true, false, disgord.PermissionAdministrator)
-	command.setArgumentsRequirements(true, 1, -1)
-	command.setHelpMessage("Polecenie pozwalające zbanowanie uzytkownika, wymaga conajmniej uprawnień administratora. Użycie: !ban @user <reason>")
-	command.register()
+	command := NewCommand("ban", true, false, onBanCommand)
+	command.SetPermissions(true, false, disgord.PermissionAdministrator)
+	command.SetArgumentsRequirements(true, 1, -1)
+	command.SetHelpMessage("Polecenie pozwalające zbanowanie uzytkownika, wymaga conajmniej uprawnień administratora. Użycie: !ban @user <reason>")
+	command.Register()
 }
 
 func onBanCommand(session disgord.Session, event *disgord.MessageCreate, guild *disgord.Guild, args []string) error {

@@ -10,9 +10,9 @@ const CHARSET = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789!
 var lastKey string
 
 func init() {
-	command := newCommand("shutdown", false, false, shutdownCommand)
-	command.setArgumentsRequirements(true, 0, 1)
-	command.register()
+	command := NewCommand("shutdown", false, false, shutdownCommand)
+	command.SetArgumentsRequirements(true, 0, 1)
+	command.Register()
 }
 
 func shutdownCommand(session disgord.Session, event *disgord.MessageCreate, guild *disgord.Guild, args []string) error {

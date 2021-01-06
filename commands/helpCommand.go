@@ -5,8 +5,8 @@ import (
 )
 
 func init() {
-	command := newCommand("help", false, false, onHelpCommand)
-	command.register()
+	command := NewCommand("help", false, false, onHelpCommand)
+	command.Register()
 }
 
 func onHelpCommand(session disgord.Session, event *disgord.MessageCreate, guild *disgord.Guild, args []string) error {

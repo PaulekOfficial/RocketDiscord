@@ -6,10 +6,10 @@ import (
 )
 
 func init() {
-	command := newCommand("loop", false, false, onLoopCommand)
-	command.setArgumentsRequirements(true, -1, -1)
-	command.setHelpMessage("Polecenia pozwalajace na zapętlenie konretnego utworu muzyki na kanale glosowym. Użycie: /loop")
-	command.register()
+	command := NewCommand("loop", false, false, onLoopCommand)
+	command.SetArgumentsRequirements(true, -1, -1)
+	command.SetHelpMessage("Polecenia pozwalajace na zapętlenie konretnego utworu muzyki na kanale glosowym. Użycie: /loop")
+	command.Register()
 }
 
 func onLoopCommand(session disgord.Session, event *disgord.MessageCreate, guild *disgord.Guild, args []string) (err error) {

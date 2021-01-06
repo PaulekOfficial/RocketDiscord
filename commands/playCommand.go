@@ -10,10 +10,10 @@ import (
 )
 
 func init() {
-	command := newCommand("play", false, false, onPlayCommand)
-	command.setArgumentsRequirements(true, 1, -1)
-	command.setHelpMessage("Polecenia pozwalajace na dolaczenie bota do kanalu glosowego przez ktorego mozna puscic muzykne na kanale. Użycie: /play <link z youtube lub innego serwisu z muzyką>")
-	command.register()
+	command := NewCommand("play", false, false, onPlayCommand)
+	command.SetArgumentsRequirements(true, 1, -1)
+	command.SetHelpMessage("Polecenia pozwalajace na dolaczenie bota do kanalu glosowego przez ktorego mozna puscic muzykne na kanale. Użycie: /play <link z youtube lub innego serwisu z muzyką>")
+	command.Register()
 }
 
 func onPlayCommand(session disgord.Session, event *disgord.MessageCreate, guild *disgord.Guild, args []string) (err error) {

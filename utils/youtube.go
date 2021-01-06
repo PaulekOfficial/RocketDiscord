@@ -123,7 +123,7 @@ func GetYoutubeStreamMemory(args []string, session disgord.Session, channelID di
 			return nil, err
 		}
 	}
-	if len(args) > 1 || video != nil {
+	if len(args) > 1 || video == nil {
 		_, err = session.SendMsg(channelID, ":hourglass_flowing_sand: Wyszukuje dopasowań w serwisie youtube...")
 		if err != nil {
 			return nil, err

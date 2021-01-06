@@ -47,7 +47,7 @@ func (caller *GuildCaller) Guild(id disgord.Snowflake) disgord.GuildQueryBuilder
 	return caller.session.Guild(id)
 }
 
-func newCommand(name string, requirePermissions bool, nsfw bool, f func(disgord.Session, *disgord.MessageCreate, *disgord.Guild, []string) error) Command {
+func NewCommand(name string, requirePermissions bool, nsfw bool, f func(disgord.Session, *disgord.MessageCreate, *disgord.Guild, []string) error) Command {
 	if f == nil {
 		panic("function is nil")
 	}
@@ -60,7 +60,7 @@ func newCommand(name string, requirePermissions bool, nsfw bool, f func(disgord.
 	}
 }
 
-func (command *Command) setPermissions(requirePermissions bool, guildOwnerOnly bool, permissionsLevel disgord.PermissionBit) {
+func (command *Command) SetPermissions(requirePermissions bool, guildOwnerOnly bool, permissionsLevel disgord.PermissionBit) {
 	command.GuildOwnerOnly = guildOwnerOnly
 	command.RequirePermissions = requirePermissions
 	command.PermissionsLevel = permissionsLevel
@@ -68,17 +68,17 @@ func (command *Command) setPermissions(requirePermissions bool, guildOwnerOnly b
 
 //If MinimumArgumentsSize is set to -1 that means no limit
 //If MinimumArgumentsSize is set to -1 that means no limit
-func (command *Command) setArgumentsRequirements(requireArguments bool, minimumArgumentsSize int, maximumArgumentsSize int) {
+func (command *Command) SetArgumentsRequirements(requireArguments bool, minimumArgumentsSize int, maximumArgumentsSize int) {
 	command.RequireArguments = requireArguments
 	command.MinimumArgumentsSize = minimumArgumentsSize
 	command.MaximumArgumentsSize = maximumArgumentsSize
 }
 
-func (command *Command) setHelpMessage(message string) {
+func (command *Command) SetHelpMessage(message string) {
 	command.HelpMessage = message
 }
 
-func (command *Command) register() Command {
+func (command *Command) Register() Command {
 	availableCommands[command.Name] = *command
 
 	Log.WithFields(logrus.Fields{

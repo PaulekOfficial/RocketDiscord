@@ -3,12 +3,12 @@ package commands
 import (
 	"github.com/andersfylling/disgord"
 	"strconv"
-	"strings"
+	"time"
 )
 
 func init() {
-	command := newCommand("server", false, false, onServerCommand)
-	command.register()
+	command := NewCommand("server", false, false, onServerCommand)
+	command.Register()
 }
 
 func onServerCommand(session disgord.Session, event *disgord.MessageCreate, guild *disgord.Guild, args []string) error {
@@ -17,7 +17,11 @@ func onServerCommand(session disgord.Session, event *disgord.MessageCreate, guil
 	if err != nil {
 		return err
 	}
-	channels, err := guildQuery.GetChannels()
+	//channels, err := guildQuery.GetChannels()
+	//if err != nil {
+	//	return err
+	//}
+	owner, err := session.User(guild.OwnerID).Get()
 	if err != nil {
 		return err
 	}
@@ -26,15 +30,27 @@ func onServerCommand(session disgord.Session, event *disgord.MessageCreate, guil
 	for i := 0; i < len(guild.Emojis); i++ {
 		emojiNames[i] = ":" + guild.Emojis[i].Name + ":"
 	}
+	avatarUrl, err := event.Message.Author.AvatarURL(32, false)
+	
+	footer := &disgord.EmbedFooter{
+		Text:         "Wygenerowal " + event.Message.Author.Username,
+		IconURL:      avatarUrl,
+	}
+	
 	fields := []*disgord.EmbedField{
 		{
-			Name:   "ID Serwera",
+			Name:   "Nazwa",
+			Value:  guild.Name,
+			Inline: true,
+		},
+		{
+			Name:   "ID",
 			Value:  guild.ID.String(),
 			Inline: true,
 		},
 		{
-			Name:   "ID Własciciela",
-			Value:  guild.OwnerID.String(),
+			Name:   "Uzytkownikow",
+			Value:  strconv.Itoa(len(members)),
 			Inline: true,
 		},
 		{
@@ -43,18 +59,28 @@ func onServerCommand(session disgord.Session, event *disgord.MessageCreate, guil
 			Inline: true,
 		},
 		{
-			Name:   "Ilosc dostepnych kanalow",
-			Value:  strconv.Itoa(len(channels)),
+			Name:   "Wlasciciel",
+			Value:  owner.Username,
 			Inline: true,
 		},
 		{
-			Name:   "Ilość uzytkownikow",
-			Value:  strconv.Itoa(len(members)),
+			Name:   "Rangi",
+			Value:  strconv.Itoa(len(guild.Roles)),
 			Inline: true,
 		},
 		{
-			Name:   "Serwerowe emoji",
-			Value:  strings.Join(emojiNames, " "),
+			Name:   "Poziom MFA",
+			Value:  strconv.Itoa(int(guild.MFALevel)),
+			Inline: true,
+		},
+		{
+			Name:   "Poziom Weryfikacji",
+			Value:  strconv.Itoa(int(guild.VerificationLevel)),
+			Inline: true,
+		},
+		{
+			Name:   "Emotikonki",
+			Value:  strconv.Itoa(len(guild.Emojis)),
 			Inline: true,
 		},
 	}
@@ -63,11 +89,10 @@ func onServerCommand(session disgord.Session, event *disgord.MessageCreate, guil
 		Tts:                      false,
 		Embed:                    &disgord.Embed{
 			Title:       "Informacje dotyczące serwera",
-			Description: "Oto najważniejsze informacje o tym serwerze!",
-			Timestamp:   disgord.Time{},
+			Timestamp:   disgord.Time{Time: time.Now()},
 			Color:       30654,
-			//Image:       image,
 			Fields:      fields,
+			Footer:      footer,
 		},
 	})
 	return err
