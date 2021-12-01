@@ -105,9 +105,9 @@ func onPlayCommand(session disgord.Session, event *disgord.MessageCreate, guild 
 			},
 		}
 		_, err = session.Channel(channelId).CreateMessage(&disgord.CreateMessageParams{
-			Content:                  "",
-			Tts:                      false,
-			Embed:                    &disgord.Embed{
+			Content:         "",
+			Tts:             false,
+			Embed:           &disgord.Embed{
 				Title:       "",
 				Author:      author,
 				Description: track.URL,
@@ -130,17 +130,11 @@ func startPlaying(session disgord.Session, musicState *cache.MusicBotState, chan
 
 	musicState.Voice = voice
 
-	message, err := session.SendMsg(channelId, ":scientist: Statystyki odtwarzanego utworu.")
-	if err != nil {
-		return err
-	}
-
 	go func() {
-		err = utils.PlayDCAAudio(musicState.GuildId, session, message)
+		err = utils.PlayDCAAudio(musicState.GuildId, channelId, session)
 		if err != nil {
 			_, err = session.SendMsg(channelId, ":boom: Oj cos poszlo nie tak, nie mogę puścić muzyki :(.")
 			logrus.WithError(err).WithFields(logrus.Fields{
-				"guild-id": message.GuildID,
 				"music-state": musicState,
 			}).Error("Failed to play songs")
 		}

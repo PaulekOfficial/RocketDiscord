@@ -26,6 +26,7 @@ var Log = &logrus.Logger{
 var botSettings = disgord.Config{
 	BotToken:                     "xxx",
 	Intents:                      disgord.AllIntents(),
+	DMIntents:                    disgord.IntentDirectMessageReactions | disgord.IntentDirectMessages | disgord.IntentDirectMessageTyping,
 	ProjectName:                  "RocketDiscord",
 	CancelRequestWhenRateLimited: false,
 	LoadMembersQuietly:           true,
@@ -36,7 +37,7 @@ var botSettings = disgord.Config{
 
 func main()  {
 	Log.Info("Init database connection...")
-	mysql, err := sql.Open("mymysql", "tcp:127.0.0.1:3306*rocketdiscord/rocketdiscorduser/Yrhzmudg")
+	mysql, err := sql.Open("mymysql", "tcp:127.0.0.1:3306*xxx")
 	if err != nil {
 		panic(err)
 	}
@@ -50,8 +51,6 @@ func main()  {
 	Log.Info("Set random time base")
 
 	Log.Info("Bot starting...")
-
-	RegisterModLogModule()
 
 	botClient := disgord.New(botSettings)
 
@@ -77,14 +76,8 @@ func handle(client *disgord.Client) error {
 	client.Gateway().WithMiddleware(mdlw.filterOutHumans, mdlw.filterOutOthersMsgs)
 
 	client.Gateway().MessageCreate(CommandMessageCreate, PleasePornGif, MessageXD)
-	client.Gateway().GuildMemberRemove(MemberRemoveGuildEvent)
-	client.Gateway().GuildMemberAdd(MemberAddGuildEvent)
 	client.Gateway().VoiceStateUpdate(cache.VoiceStateUpdate)
 	client.Gateway().Ready(ReadyEvent)
-
-	client.Gateway().MessageCreate(LogMessage)
-	client.Gateway().MessageUpdate(LogMessageUpdate)
-	client.Gateway().UserUpdate(LogUserUpdate)
 
 
 	// connect now, and disconnect on system interrupt

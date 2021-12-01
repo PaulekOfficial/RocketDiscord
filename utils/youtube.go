@@ -106,7 +106,7 @@ func SearchYoutubeVideos(keywords []string, page string) (query *YoutubeSearchQu
 
 func GetYoutubeStreamMemory(args []string, session disgord.Session, channelID disgord.Snowflake) (track *cache.MusicBotTrack, err error) {
 	ytClient := youtube.Client{
-		Debug:      true,
+		Debug:      false,
 		HTTPClient: http.DefaultClient,
 	}
 
@@ -118,10 +118,6 @@ func GetYoutubeStreamMemory(args []string, session disgord.Session, channelID di
 			return nil, err
 		}
 
-		_, err = session.SendMsg(channelID, ":telescope: Ładuje podany utwór...")
-		if err != nil {
-			return nil, err
-		}
 	}
 	if len(args) > 1 || video == nil {
 		_, err = session.SendMsg(channelID, ":hourglass_flowing_sand: Wyszukuje dopasowań w serwisie youtube...")
@@ -181,21 +177,32 @@ func GetYoutubeStreamMemory(args []string, session disgord.Session, channelID di
 		return
 	}
 
-	buffer, err := ioutil.ReadAll(result.Body)
-	if err != nil {
-		return
-	}
-
-	//reader := ioutil.NopCloser(bytes.NewReader(buffer))
 
 	track = &cache.MusicBotTrack{
-		Stream:     bytes.NewReader(buffer),
-		MusicBytes: buffer,
+		MusicBytes: nil,
+		ReadCloser: result.Body,
+		BitRate:    videoFormat.Bitrate / 1000,
 		URL:        "https://www.youtube.com/watch?v=" + video.ID,
 		Playback:   nil,
 		Name:       video.Title,
 		Duration:   video.Duration,
+		RawSavedFrames: make([]cache.RawSavedFrame, 0),
+		ReaderRead: false,
 	}
+
+	go func() {
+		result2, err := ytClient.GetStream(video, videoFormat)
+		if err != nil || result == nil {
+			return
+		}
+		buffer, err := ioutil.ReadAll(result2.Body)
+		if err != nil {
+			return
+		}
+		result2.Body.Close()
+
+		track.MusicBytes = &buffer
+	}()
 
 	return
 }

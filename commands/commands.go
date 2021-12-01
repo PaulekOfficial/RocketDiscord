@@ -89,7 +89,7 @@ func (command *Command) Register() Command {
 }
 
 func ParseMessage(session disgord.Session, event *disgord.MessageCreate, guild *disgord.Guild, message string) {
-	guildSettings := cache.CreateOrGetGuildSettings(guild.ID)
+	guildSettings := cache.CreateOrGetGuildSettings(guild)
 	commandPrefix := guildSettings.CommandPrefix
 
 	//Check if message contains command prefix
