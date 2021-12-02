@@ -1,7 +1,6 @@
 package utils
 
 import (
-	"RocketDiscord/cache"
 	"bytes"
 	"fmt"
 	"github.com/andersfylling/disgord"

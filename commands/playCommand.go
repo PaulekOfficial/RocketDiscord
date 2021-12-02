@@ -1,8 +1,6 @@
 package commands
 
 import (
-	"RocketDiscord/cache"
-	"RocketDiscord/utils"
 	"github.com/andersfylling/disgord"
 	"github.com/sirupsen/logrus"
 	"strconv"

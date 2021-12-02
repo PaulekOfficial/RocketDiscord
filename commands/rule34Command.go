@@ -1,7 +1,6 @@
 package commands
 
 import (
-	"RocketDiscord/utils"
 	"github.com/andersfylling/disgord"
 	"strings"
 )

@@ -1,7 +1,6 @@
 package main
 
 import (
-	"RocketDiscord/commands"
 	"fmt"
 	"github.com/andersfylling/disgord"
 	"github.com/sirupsen/logrus"
