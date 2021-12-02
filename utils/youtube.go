@@ -3,6 +3,7 @@ package utils
 import (
 	"bytes"
 	"encoding/csv"
+	"github.com/PaulekOfficial/RocketDiscord/cache"
 	"github.com/andersfylling/disgord"
 	"github.com/kkdai/youtube"
 	"github.com/lithdew/bytesutil"
@@ -171,7 +172,7 @@ func GetYoutubeStreamMemory(args []string, session disgord.Session, channelID di
 		return
 	}
 
-	result, err := ytClient.GetStream(video, videoFormat)
+	result, _, err := ytClient.GetStream(video, videoFormat)
 	if err != nil || result == nil {
 		return
 	}
@@ -179,7 +180,7 @@ func GetYoutubeStreamMemory(args []string, session disgord.Session, channelID di
 
 	track = &cache.MusicBotTrack{
 		MusicBytes: nil,
-		ReadCloser: result.Body,
+		ReadCloser: result,
 		BitRate:    videoFormat.Bitrate / 1000,
 		URL:        "https://www.youtube.com/watch?v=" + video.ID,
 		Playback:   nil,
@@ -190,15 +191,15 @@ func GetYoutubeStreamMemory(args []string, session disgord.Session, channelID di
 	}
 
 	go func() {
-		result2, err := ytClient.GetStream(video, videoFormat)
+		result2, _, err := ytClient.GetStream(video, videoFormat)
 		if err != nil || result == nil {
 			return
 		}
-		buffer, err := ioutil.ReadAll(result2.Body)
+		buffer, err := ioutil.ReadAll(result2)
 		if err != nil {
 			return
 		}
-		result2.Body.Close()
+		result2.Close()
 
 		track.MusicBytes = &buffer
 	}()

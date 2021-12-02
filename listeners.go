@@ -2,6 +2,7 @@ package main
 
 import (
 	"fmt"
+	"github.com/PaulekOfficial/RocketDiscord/commands"
 	"github.com/andersfylling/disgord"
 	"github.com/sirupsen/logrus"
 	"math/rand"

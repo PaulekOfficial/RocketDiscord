@@ -4,6 +4,7 @@ import (
 	"context"
 	"database/sql"
 	"errors"
+	"github.com/PaulekOfficial/RocketDiscord/cache"
 	"github.com/andersfylling/disgord"
 	"github.com/sirupsen/logrus"
 	_ "github.com/ziutek/mymysql/godrv"
@@ -24,7 +25,7 @@ var Log = &logrus.Logger{
 
 var botSettings = disgord.Config{
 	BotToken:                     "xxx",
-	Intents:                      disgord.AllIntents(),
+//	Intents:                      disgord.AllIntents(),
 	DMIntents:                    disgord.IntentDirectMessageReactions | disgord.IntentDirectMessages | disgord.IntentDirectMessageTyping,
 	ProjectName:                  "RocketDiscord",
 	CancelRequestWhenRateLimited: false,
